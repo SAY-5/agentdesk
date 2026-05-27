@@ -27,7 +27,7 @@ agentdesk = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=agentdesk --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=agentdesk --cov-report=term-missing --cov-fail-under=83"
 
 [tool.ruff]
 line-length = 100
