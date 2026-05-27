@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: mypy
+      - run: pytest
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Start stack
+        run: docker compose up -d --build
+      - name: Wait for the console
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5173/api/queue >/dev/null; then
+              echo "stack is up"; exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - name: Install Playwright
+        working-directory: e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Run e2e
+        working-directory: e2e
+        env:
+          BASE_URL: http://localhost:5173
+        run: npx playwright test
+      - name: Tear down
+        if: always()
+        run: docker compose down
+
+  build-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build api image
+        run: docker build -f Dockerfile.api -t agentdesk-api .
+      - name: Build web image
+        run: docker build -t agentdesk-web ./web
