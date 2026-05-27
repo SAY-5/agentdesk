@@ -74,10 +74,24 @@ docker compose up --build
 ## Tests
 
 ```bash
-pytest                         # Python unit tests
+pytest                         # Python unit, contract, and escalation tests
 cd web && npm run test         # console component tests
 cd e2e && npx playwright test  # end-to-end against the compose stack
 ```
+
+## Benchmark
+
+`bench/throughput.py` runs a batch of requests through the agent loop with the
+fake provider and reports requests per second:
+
+```bash
+python -m bench.throughput --batch 2000
+```
+
+Measured locally at roughly 80000 to 110000 requests per second over batches of
+2000 to 10000 on Python 3.13. CI runs `bench/regress.py` as a smoke gate that
+fails if throughput drops more than 30 percent below the conservative baseline
+in `bench/baseline.json`.
 
 ## How this differs
 

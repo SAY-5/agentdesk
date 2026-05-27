@@ -19,6 +19,17 @@ jobs:
       - run: mypy
       - run: pytest
 
+  bench-regress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: Throughput regression smoke gate (30%)
+        run: python -m bench.regress --batch 2000 --max-drop 0.30
+
   web:
     runs-on: ubuntu-latest
     defaults:

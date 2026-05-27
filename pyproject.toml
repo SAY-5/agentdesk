@@ -20,10 +20,11 @@ agentdesk = "agentdesk.cli:main"
 agentdesk-serve = "agentdesk.api:serve"
 
 [tool.setuptools.packages.find]
-include = ["agentdesk*"]
+include = ["agentdesk*", "bench*"]
 
 [tool.setuptools.package-data]
 agentdesk = ["py.typed"]
+bench = ["baseline.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

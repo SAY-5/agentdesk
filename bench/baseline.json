@@ -1,0 +1,5 @@
+{
+  "requests_per_second": 20000,
+  "note": "Conservative floor for the bench-regress gate, set well below measured throughput so the 30% gate only trips on a real regression and tolerates slower CI hardware. Measured locally at roughly 80000 to 110000 rps over batches of 2000 to 10000 on Python 3.13.",
+  "batch": 2000
+}
