@@ -39,6 +39,22 @@ is resolved automatically; below it the request escalates to a human. The
 threshold is tunable, so an operator can trade automation rate against the risk
 of acting when the picture is incomplete. See `agentdesk/core/confidence.py`.
 
+The behavior is pinned by a decision table in `tests/test_calibration.py`:
+
+| signal | completeness | confidence | decision at 0.7 |
+| ------ | ------------ | ---------- | --------------- |
+| 1.0    | 1.0          | 1.00       | resolve         |
+| 0.9    | 1.0          | 0.90       | resolve         |
+| 0.7    | 1.0          | 0.70       | resolve         |
+| 0.69   | 1.0          | 0.69       | escalate        |
+| 0.9    | 0.5          | 0.45       | escalate        |
+| 0.2    | 1.0          | 0.20       | escalate        |
+
+A request that escalates at the default threshold auto-resolves once the
+threshold is lowered below its confidence, and vice versa; the tuning is proven
+both at the model level and through the full agent loop in
+`tests/test_threshold_tuning.py`.
+
 ## Audit trail and human-in-loop
 
 Every handled request keeps a full transcript: each tool call with its result
